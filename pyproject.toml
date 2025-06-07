@@ -1,0 +1,83 @@
+[project]
+name = "pyaether-cli"
+version = "0.0.0"
+description = "A CLI to build and run dev server for Aether apps."
+authors = [{ name = "Saurabh Ghanekar", email = "ghanekarsaurabh8@gmail.com" }]
+license = "BSD-2-Clause"
+license-files = ["LICENSE.md"]
+readme = "README.md"
+urls = { homepage = "https://github.com/pyaether/aether-cli", repository = "https://github.com/pyaether/aether-cli", documentation = "https://github.com/pyaether/aether-cli" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "click>=8.1",
+    "pydantic>=2.10",
+    "rich>=13.9",
+    "typing-extensions>=4",
+]
+scripts = { aether = "aether_cli.cli:main" }
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0",
+    "ruff>=0.9",
+    "tomli>=2.2; python_version < '3.11'", # Note: Remove this when the 'requires-python' becomes ">=3.11" 
+]
+test = ["pytest>=8.3", "pytest-cov>=6.0"]
+
+
+[tool.uv]
+default-groups = ["dev", "test"]
+
+
+[[tool.uv.index]]
+explicit = true
+name = "testpypi"
+publish-url = "https://test.pypi.org/legacy"
+url = "https://test.pypi.org/simple"
+
+
+[tool.ruff]
+line-length = 88
+
+
+[tool.ruff.lint]
+select = [
+    # "D",      # pydocstyle
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "S",      # flake8-bandit
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG001", # unused arguments in functions
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "W191", # indentation contains tabs
+    "B904", # Allow raising exceptions without from e, for HTTPException
+]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[tool.versioning]
+backend = "uv"
+
+[tool.versioning.files]
+version_variable = ["src/aether_cli/__init__.py:__version__"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aether_cli"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
