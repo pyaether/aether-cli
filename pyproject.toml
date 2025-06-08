@@ -13,7 +13,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "beautifulsoup4>=4.13",
     "click>=8.1",
+    "pyaether",
     "pydantic>=2.10",
     "rich>=13.9",
     "typing-extensions>=4",
