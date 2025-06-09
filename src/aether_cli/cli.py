@@ -151,9 +151,6 @@ def run() -> None:
         server.shutdown()
         interrupt_event.set()
 
-    # original_sigint = signal.getsignal(signal.SIGINT)
-    # original_sigterm = signal.getsignal(signal.SIGTERM)
-
     signal.signal(signal.SIGINT, shutdown_handler)
     signal.signal(signal.SIGTERM, shutdown_handler)
 
@@ -187,7 +184,6 @@ def run() -> None:
     try:
         interrupt_event.wait()
     finally:
-        # --- Cleanup: Restore original signal handlers ---
         console.print("[bold red]Server has been shut down.[/bold red]")
         signal.signal(signal.SIGINT, signal.getsignal(signal.SIGINT))
         signal.signal(signal.SIGTERM, signal.getsignal(signal.SIGTERM))
