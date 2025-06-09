@@ -1,5 +1,6 @@
 import importlib
 import importlib.util
+import socket
 import sys
 from pathlib import Path
 from typing import Any
@@ -37,3 +38,13 @@ def load_build_function_instance(file_target: str, function_target: str) -> Any:
         raise ImportFromStringError(message)
 
     return instance
+
+
+def get_local_ip():
+    """Tries to find the local network IP address of the machine."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception:
+        return None

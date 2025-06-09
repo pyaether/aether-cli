@@ -1,12 +1,19 @@
 import shutil
+import signal
+import threading
 from pathlib import Path
 
 import click
 from rich.console import Console
+from rich.live import Live
+from rich.spinner import Spinner
+from rich.table import Table
 
 from . import __version__
 from .build_process import builder
 from .configs import configs
+from .run_server import tcp_server
+from .utils import get_local_ip
 
 
 @click.group()
@@ -108,3 +115,83 @@ def build(prefix: str, verbose: bool) -> None:
             )
 
     console.print("\n[bold green]Build successful![/bold green]")
+
+
+@main.command()
+def run() -> None:
+    console = Console()
+    interrupt_event = threading.Event()
+
+    if not configs.build_config.output_dir.exists():
+        console.print("[bold red]Build directory not found.[/bold red]")
+        console.print("Please run 'pytempl-cli build' first.")
+        return
+
+    try:
+        server = tcp_server(
+            console=console,
+            host=configs.run_config.host,
+            port=configs.run_config.port,
+            directory_path=configs.build_config.output_dir,
+        )
+    except OSError:
+        console.print(
+            f"[bold red]Error: Could not bind to address http://{configs.run_config.host if configs.run_config.host is not None else '127.0.0.1'}:{configs.run_config.port}.[/bold red]"
+        )
+        console.print(f"Is port {configs.run_config.port} already in use?")
+        return
+
+    def shutdown_handler(signum, _frame):
+        """Gracefully shut down the server."""
+        signal_name = signal.Signals(signum).name
+        console.print(
+            f"\n[bold yellow]Received {signal_name}. Shutting down server...[/bold yellow]"
+        )
+
+        server.shutdown()
+        interrupt_event.set()
+
+    # original_sigint = signal.getsignal(signal.SIGINT)
+    # original_sigterm = signal.getsignal(signal.SIGTERM)
+
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
+    with Live(
+        Spinner("dots", text=" Starting server..."), console=console, transient=True
+    ):
+        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
+
+    info_table = Table.grid(padding=(0, 1))
+    info_table.add_column()
+    info_table.add_column()
+
+    info_table.add_row("✓", "[bold green]Aether App[/bold green] is running!")
+    info_table.add_row(
+        "  ",
+        f"[cyan]Local:[/cyan]      http://{configs.run_config.host if configs.run_config.host is not None else '127.0.0.1'}:{configs.run_config.port}",
+    )
+
+    local_ip = get_local_ip()
+    if local_ip:
+        info_table.add_row(
+            "  ",
+            f"[cyan]Network:[/cyan]    http://{local_ip}:{configs.run_config.port}",
+        )
+
+    console.print(info_table)
+    console.print("\nPress CTRL+C to stop the server.\n")
+
+    try:
+        interrupt_event.wait()
+    finally:
+        # --- Cleanup: Restore original signal handlers ---
+        console.print("[bold red]Server has been shut down.[/bold red]")
+        signal.signal(signal.SIGINT, signal.getsignal(signal.SIGINT))
+        signal.signal(signal.SIGTERM, signal.getsignal(signal.SIGTERM))
+
+
+if __name__ == "__main__":
+    main()
