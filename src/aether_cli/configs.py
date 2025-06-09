@@ -47,7 +47,6 @@ class StaticContentConfig(BaseModel):
 
 class Config(BaseModel):
     build_config: BuildConfig
-    components_dir: Path
     run_config: RunConfig
     static_content_config: StaticContentConfig
 
@@ -61,9 +60,6 @@ def load_configs() -> Config:
         raw_aether_config: dict = tomllib.load(file).get("tool", {}).get("aether", {})
 
         raw_aether_build_config: dict = raw_aether_config.get("build", {})
-        raw_aether_components_dir: str = raw_aether_config.get(
-            "components_dir", "ui/components/"
-        )
         raw_aether_run_config: dict = raw_aether_config.get("run", {})
         raw_aether_static_content_config: dict = raw_aether_config.get(
             "static_content", {}
@@ -88,8 +84,6 @@ def load_configs() -> Config:
         pages_names=raw_aether_build_config.get("pages", {}).get("names", []),
     )
 
-    parsed_components_dir = Path(raw_aether_components_dir)
-
     # Decompose raw 'run' configurations.
     parsed_run_config = RunConfig(
         host=raw_aether_run_config.get("host", None),
@@ -106,7 +100,6 @@ def load_configs() -> Config:
 
     return Config(
         build_config=parsed_build_config,
-        components_dir=parsed_components_dir,
         run_config=parsed_run_config,
         static_content_config=parsed_static_content_config,
     )

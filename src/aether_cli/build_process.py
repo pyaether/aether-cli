@@ -39,10 +39,12 @@ def _update_paths_in_soup(
                         new_path = static_assets_dir / old_path.relative_to("assets")
                     elif Path("public") in old_path.parents:
                         new_path = output_dir / old_path.relative_to("public")
+                    elif ".css" in old_path.suffixes:
+                        new_path = static_css_dir / old_path.name
                     else:
                         # Note: Need to find a better way to handle pages condition. Right now, we are just shoving it in this else block.
                         # Note: Assuming the stem in href is same as the page_name mentioned in the config.
-                        if ".html" in old_path.name:
+                        if ".html" in old_path.suffixes:
                             new_path = output_dir / old_path.relative_to(".")
                         else:
                             new_path = output_dir / old_path.name
