@@ -29,7 +29,9 @@ def _update_paths_in_soup(
     ]:
         for tag in soup.find_all(tag_name):
             if attribute in tag.attrs:
-                if not tag[attribute].startswith(("http://", "https://", "/")):
+                if not tag[attribute].startswith(
+                    ("http://", "https://", "/", "mailto:")
+                ):
                     old_path = Path(tag[attribute])
                     if Path("styles") in old_path.parents:
                         new_path = static_css_dir / old_path.relative_to("styles")

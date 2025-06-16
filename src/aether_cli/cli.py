@@ -64,7 +64,7 @@ def build(prefix: str, verbose: bool) -> None:
                 console.print(f"Copying {directory_name} from {src} to {dest}")
             shutil.copytree(src, dest, dirs_exist_ok=True)
         else:
-            console.print(f"Project doesn't have a '{src}' directory.")
+            console.print(f"Project doesn't have a '{directory_name}' directory.")
 
     _copy_dir(configs.static_content_config.assets_dir, static_assets_dir, "assets")
     _copy_dir(configs.static_content_config.styles_dir, static_css_dir, "styles")
