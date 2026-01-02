@@ -34,8 +34,11 @@ def version():
     default="",
     help="Inject 'base_path' prefix in the generated HTML file.",
 )
+@click.option(
+    "--pretty-print-output", is_flag=True, help="Enable pretty print output HTML."
+)
 @click.option("--verbose", is_flag=True, help="Enable verbose mode to echo steps.")
-def build(prefix: str, verbose: bool) -> None:
+def build(prefix: str, pretty_print_output: bool, verbose: bool) -> None:
     console = Console()
 
     def _create_dir_if_not_exists(directory: Path) -> None:
@@ -88,6 +91,7 @@ def build(prefix: str, verbose: bool) -> None:
         static_assets_dir=static_assets_dir,
         static_css_dir=static_css_dir,
         static_js_dir=static_js_dir,
+        pretty_print_output=pretty_print_output,
         verbose=verbose,
     )
 
@@ -111,6 +115,7 @@ def build(prefix: str, verbose: bool) -> None:
                 static_assets_dir=static_assets_dir,
                 static_css_dir=static_css_dir,
                 static_js_dir=static_js_dir,
+                pretty_print_output=pretty_print_output,
                 verbose=verbose,
             )
 

@@ -74,6 +74,7 @@ def builder(
     static_assets_dir: Path,
     static_css_dir: Path,
     static_js_dir: Path,
+    pretty_print_output: bool = False,
     verbose: bool = False,
 ) -> None:
     if verbose:
@@ -109,4 +110,6 @@ def builder(
         console.print("Writing final HTML to file...")
 
     with open(output_html_path, "w", encoding="utf-8") as file:
-        file.write(updated_soup.decode(pretty_print=True, formatter="html5"))
+        file.write(
+            updated_soup.decode(pretty_print=pretty_print_output, formatter="html5")
+        )
