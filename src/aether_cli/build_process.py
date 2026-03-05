@@ -30,7 +30,7 @@ def _update_paths_in_soup(
         for tag in soup.find_all(tag_name):
             if attribute in tag.attrs:
                 if not tag[attribute].startswith(
-                    ("http://", "https://", "/", "mailto:")
+                    ("http://", "https://", "/", "mailto:", "data:image")
                 ):
                     old_path = Path(tag[attribute])
                     if Path("styles") in old_path.parents:
